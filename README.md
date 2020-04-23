@@ -18,8 +18,16 @@ All method return promises and can be chained.
 - searchAndConnect (shortcut for requestDevice chained with connect)
 - disconnect
 - waitForAuthorization
+
+- getManufacturerName
+- getFirmwareRevision
+- getHardwareRevision
+- getModelNumber
+- getSoftwareRevision
+
 - getBatteryLevel
 - getKeyState 
+
 - getMotorsSpeed
 - getMainMotorSpeed
 - getVibratorSpeed

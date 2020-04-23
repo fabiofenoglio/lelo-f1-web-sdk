@@ -19,16 +19,36 @@ function runDemo() {
     client.searchAndConnect().then(function() {
 
         log('device connected!');
-        log('PRESS THE CENTRAL BUTTON TO AUTHORIZE');
-
+        
         return Promise.all([
             client.getBatteryLevel().then(function(batteryLevel) {
                 log('battery is at ' + batteryLevel + ' %');
             }),
-            client.waitForAuthorization()
+            client.getManufacturerName().then(function(value) {
+                log('manufacturer name: ' + value);
+            }),
+            client.getModelNumber().then(function(value) {
+                log('model number: ' + value);
+            }),
+            client.getHardwareRevision().then(function(value) {
+                log('hardware revision: ' + value);
+            }),
+            client.getFirmwareRevision().then(function(value) {
+                log('firmware revision: ' + value);
+            }),
+            client.getSoftwareRevision().then(function(value) {
+                log('software revision: ' + value);
+            })
         ]);
     }).then(function() {
+        log('***');
+        log('PRESS THE CENTRAL BUTTON TO AUTHORIZE');
+        log('***');
 
+        return client.waitForAuthorization();
+
+    }).then(function() {
+        
         log('connection authorized!');
         log('will power ON motors in 5 seconds');
 
@@ -68,8 +88,7 @@ function runDemo() {
             .then(function() {
                 log('will power OFF motors in 3 seconds');
                 return wait(3000);
-            })
-            ;
+            });
 
     }).then(function() {
         log('powering OFF motors. will disconnect in 2 seconds');
