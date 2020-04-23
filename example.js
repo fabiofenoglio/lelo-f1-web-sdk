@@ -37,16 +37,39 @@ function runDemo() {
                 log('key state: ' + keyState);
             }),
             client.shutdownMotors(),
-            wait(5000)
+            wait(6000)
         ]);
     }).then(function() {
-        log('powering ON motors.');
-        log('will power OFF motors in 5 seconds');
+        log('powering ON motors to 30 %, 30 %.');
 
-        return Promise.all([
-            client.setMotorsSpeed(40, 40),
-            wait(5000)
-        ]);
+        return client
+            .setMotorsSpeed(30, 30)
+            .then(function() {
+                return wait(3000);
+            })
+            .then(function() {
+                log('setting motors to 30 %, 0 %');
+                return client.setVibratorSpeed(0);
+            })
+            .then(function() {
+                return wait(3000);
+            })
+            .then(function() {
+                log('setting motors to 30 %, 30 %');
+                return client.setMotorsSpeed(30, 30)
+            })
+            .then(function() {
+                return wait(3000);
+            })
+            .then(function() {
+                log('setting motors to 0 %, 30 %');
+                return client.setMainMotorSpeed(0);
+            })
+            .then(function() {
+                log('will power OFF motors in 3 seconds');
+                return wait(3000);
+            })
+            ;
 
     }).then(function() {
         log('powering OFF motors. will disconnect in 2 seconds');
@@ -61,7 +84,7 @@ function runDemo() {
         client.disconnect();
     }, function(err) {
         console.error(err);
-        log('disconnecting after error');
+        log('disconnecting after error: ' + err);
         client.disconnect();
     });
 
