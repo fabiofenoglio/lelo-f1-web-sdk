@@ -55,10 +55,6 @@ function runDemo() {
         /* Poll sensors data every 300 ms */
         setInterval(function() {
             if (client.isConnected()) {
-                client.getInsertionDepthPercentage().then(function(sensorData) {
-                    log('insertion depth: ' + sensorData + ' / 8');
-                });
-                
                 client.getButtonsStatus().then(function(buttonsStatus) {
                     if (buttonsStatus.any) {
                         log('button ' + ( buttonsStatus.minus ? 'MINUS' : buttonsStatus.plus ? 'PLUS' : 'CENTRAL' ) + ' pressed!');
@@ -90,7 +86,7 @@ function runDemo() {
                 log('acceleration: X=' + sensorData[0] + ', Y=' + sensorData[1] + ', Z=' + sensorData[2]);
             }),
             client.getInsertionDepthPercentage().then(function(sensorData) {
-                log('insertion depth: ' + sensorData + ' / 8');
+                log('insertion depth: ' + sensorData + ' %');
             }),
             client.shutdownMotors(),
             wait(2000)
