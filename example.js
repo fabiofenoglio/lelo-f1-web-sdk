@@ -57,20 +57,25 @@ function runDemo() {
         /* subscribe to GATT notifications on value changes */
         client.notifyButtons(function(buttonsStatus) {
             if (buttonsStatus.any) {
-                log('button ' + ( buttonsStatus.minus ? 'MINUS' : buttonsStatus.plus ? 'PLUS' : 'CENTRAL' ) + ' pressed!');
+                log('(notification) button ' + ( buttonsStatus.minus ? 'MINUS' : buttonsStatus.plus ? 'PLUS' : 'CENTRAL' ) + ' pressed!');
             } else {
-                log('no buttons pressed');
+                log('(notification) no buttons pressed');
             }
         });
 
         client.notifyInsertionDepthPercentage(function(sensorData) {
-            log('insertion depth: ' + sensorData + ' %');
+            log('(notification) insertion depth: ' + sensorData + ' %');
         });
 
+        client.notifyKeyState(function(sensorData) {
+            log('(notification) key state: ' + sensorData);
+        });
+        
+        client.notifyRotationSpeed(function(sensorData) {
+            log('(notification) rotation speed: ' + sensorData);
+        });
+        
         return Promise.all([
-            client.getKeyState().then(function(keyState) {
-                log('key state: ' + keyState);
-            }),
             client.getUseCount().then(function(value) {
                 log('usage counter: ' + value);
             }),

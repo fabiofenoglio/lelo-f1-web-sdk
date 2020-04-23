@@ -55,7 +55,9 @@ All method return promises and can be chained.
 - disableCruiseControl
 - getVibrationSettings -> returns array of integers [value0, value1, ... value7]
 - setVibrationSettings (value0, value1, ... value7)
+- notifyKeyState ( callback(value) ) -> returns handler
 - notifyButtons ( callback(value) ) -> returns handler
 - notifyInsertionDepth ( callback(value) ) -> returns handler
 - notifyInsertionDepthPercentage ( callback(value) ) -> returns handler
+- notifyRotationSpeed ( callback(value) ) -> returns handler
 - unregister (handler)
