@@ -7,6 +7,8 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/lux/bootstrap.min.css" rel="stylesheet" integrity="sha384-oOs/gFavzADqv3i5nCM+9CzXe3e5vXLXZ5LZ7PplpsWpTCufB7kqkTlC9FtZ5nJo" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="example-gui.css" rel="stylesheet">
 
     <title>LELO F1 SDK Web Bluetooth Client</title>
   </head>
@@ -29,47 +31,142 @@
         </div>
     </nav>
 
-    <main role="main" class="container" style="margin-top: 80px;">
-        
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item" ng-if="manufacturerName">{{ manufacturerName }} {{ modelNumber }}</li>
-                <li class="breadcrumb-item" ng-if="hardwareRevision">
-                    hw {{ hardwareRevision || '--' }}, fw {{ firmwareRevision || '--' }}, sw {{ softwareRevision || '--' }}
-                </li>
-            </ol>
-        </nav>
+    <main role="main" class="container" style="margin-top: 100px;">
+      <div class="row" ng-if="!isConnected()">
+          <div class="col-12">
+              <h1></h1>
+              <p class="lead">
+                  Press on the 'CONNECT' button to run the demo.
+                  <br/>
+                  You can keep the DevTools console opened so you can check in case of unexpected errors.
+                  <br/><br/>
+                  If you have trouble connecting the device, turn it off, refresh the page, turn it on and press the button immediately after.
+              </p>
+          </div>
+      </div>
 
-        <div class="row">
-            <div class="col-12">
-                <h1></h1>
-                <p class="mt-5 lead">
-                    <span ng-if="!authorized">
-                        Press on the 'CONNECT' button to run the demo.
-                        <br/>
-                    </span>
-                    You can keep the DevTools console opened so you can check in case of unexpected errors.
-                    <span ng-if="!authorized">
-                        <br/><br/>
-                        If you have trouble connecting the device, turn it off, refresh the page, turn it on and press the button immediately after.
-                    </span>
-                </p>
-            </div>
+      <div class="row">
+        <div class="col-12">
+          <p class="alert alert-warning" ng-if="!isConnected()">
+            No device connected
+          </p>
+          <p class="alert alert-info" ng-if="isConnected() && manufacturerName">
+            Connected to {{ manufacturerName }} {{ modelNumber }}
+            <br/>
+            <small> hw {{ hardwareRevision || '--' }}, fw {{ firmwareRevision || '--' }}, sw {{ softwareRevision || '--' }}
+            </small>
+          </p>
         </div>
-        <div class="row mt-3">
-            <div class="col-12">
-                <button type="button" class="btn btn-primary" ng-click="connect()" ng-disabled="pending || isConnected() ">CONNECT TO DEVICE</button>
+      </div>
 
-                <button type="button" class="btn btn-danger float-right" ng-click="shutdown()" ng-disabled="pending || !authorized || !isConnected()">SHUTDOWN</button>
-                <button type="button" class="btn btn-warning float-right mr-3" ng-click="disconnect()" ng-disabled="pending || !isConnected()">DISCONNECT</button>
-            </div>
+      <div class="row" ng-if="errors && errors.length">
+        <div class="col-12">
+          <p class="alert alert-danger" ng-repeat="error in errors">
+            {{ error }}
+          </p>
         </div>
-        <div class="row mt-5">
-            <div class="col-12">
-                <textarea class="form-control" rows="10" ng-model="log" ng-disabled="true"></textarea>
-            </div>
+      </div>
+
+      <div class="row mt-3">
+          <div class="col-12">
+              <button type="button" class="btn btn-primary" ng-click="connect()" ng-disabled="pending || isConnected() ">CONNECT TO DEVICE</button>
+
+              <button type="button" class="btn btn-danger float-right" ng-click="shutdown()" ng-disabled="pending || !authorized || !isConnected()">SHUTDOWN</button>
+              <button type="button" class="btn btn-warning float-right mr-3" ng-click="disconnect()" ng-disabled="pending || !isConnected()">DISCONNECT</button>
+          </div>
+      </div>
+
+      
+      <div class="row mt-5" ng-if="temperature || pressure || depth">
+        <div class="col-xs-12 col-sm-4">
+          <div ng-if="temperature">
+            <span>
+              <i class="fa fa-thermometer-three-quarters" aria-hidden="true"></i> 
+            </span>
+            <span>{{ temperature || '--' }} &deg;C</span>
+          </div>
         </div>
+        <div class="col-xs-12 col-sm-4">
+          <div class="text-center" ng-if="pressure">
+            <span>
+              <i class="fa fa-stethoscope" aria-hidden="true"></i> 
+            </span>
+            <span>{{ pressure || '--' }} mBar</span>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-4">
+          <div class="text-right" ng-if="depth">
+            <span>
+              <i class="fa fa-hand-o-right" aria-hidden="true"></i> 
+              {{ depth || '--' }} %
+            </span>
+            <div class="progress justify-content-end">
+              <div class="progress-bar" 
+                  role="progressbar" 
+                  style="width: {{ depth }}%; height: 20px;" 
+                  aria-valuenow="{{ depth }}" 
+                  aria-valuemin="0" 
+                  aria-valuemax="{{ depth }}">
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-3" ng-if="batteryLevel">
+        <div class="col-12">
+          <div>
+            <span>
+              <i class="fa fa-battery-{{ batteryLevel >= 85 ? 'full' :
+                batteryLevel >= 50 ? 'three-quarters' : 
+                batteryLevel >= 30 ? 'half' : 
+                batteryLevel >= 15 ? 'quarter' : 
+                'empty' }}" aria-hidden="true"></i> 
+            </span>
+            <span>{{ batteryLevel }} %</span>
+          </div>
+          <div class="progress">
+            <div class="progress-bar bg-{{ batteryLevel >= 60 ? 'success' :
+              batteryLevel >= 30 ? 'warning' : 'danger' }}" 
+                role="progressbar" 
+                style="width: {{ batteryLevel }}%; height: 20px;" 
+                aria-valuenow="{{ batteryLevel }}" 
+                aria-valuemin="0" 
+                aria-valuemax="{{ batteryLevel }}">
+              </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-3" ng-if="acceleration">
+        <div class="col-xs-12 col-sm-4">
+          
+        </div>
+        <div class="col-xs-12 col-sm-4">
+          
+        </div>
+        <div class="col-xs-12 col-sm-4">
+          <div class="text-right" ng-if="acceleration">
+              <i class="fa fa-arrows-alt" aria-hidden="true"></i>
+              X {{ acceleration[0] || '--' }},
+              Y {{ acceleration[1] || '--' }},
+              Z {{ acceleration[2] || '--' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-5">
+          <div class="col-12">
+              <textarea class="form-control" rows="10" ng-model="log" ng-disabled="true"></textarea>
+          </div>
+      </div>
     </main>
+  
+    <div class="overlay" ng-if="pending">
+      <div class="overlay-text">
+        <i class="fa fa-circle-o-notch fa-spin fa-2x" aria-hidden="true"></i>
+      </div>
+    </div>
     
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
