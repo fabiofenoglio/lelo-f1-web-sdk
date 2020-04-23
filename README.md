@@ -27,6 +27,7 @@ All method return promises and can be chained.
 
 - getBatteryLevel
 - getKeyState 
+- getUseCount
 
 - getMotorsSpeed
 - getMainMotorSpeed

@@ -48,7 +48,6 @@ function runDemo() {
         return client.waitForAuthorization();
 
     }).then(function() {
-        
         log('connection authorized!');
         log('will power ON motors in 5 seconds');
 
@@ -56,9 +55,13 @@ function runDemo() {
             client.getKeyState().then(function(keyState) {
                 log('key state: ' + keyState);
             }),
+            client.getUseCount().then(function(value) {
+                log('usage counter: ' + value);
+            }),
             client.shutdownMotors(),
             wait(6000)
         ]);
+
     }).then(function() {
         log('powering ON motors to 30 %, 30 %.');
 
