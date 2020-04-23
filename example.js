@@ -14,6 +14,8 @@ function runDemo() {
     $("#demo-button").remove();
 
     const client = leloF1SdkClientProvider.getClient();
+    
+    let buttonsChangedHandler;
 
     log('looking for device ...');
     client.searchAndConnect().then(function() {
@@ -52,16 +54,14 @@ function runDemo() {
         log('connection authorized!');
         log('will power ON motors in 5 seconds');
 
-        /* Poll sensors data every 300 ms */
-        setInterval(function() {
-            if (client.isConnected()) {
-                client.getButtonsStatus().then(function(buttonsStatus) {
-                    if (buttonsStatus.any) {
-                        log('button ' + ( buttonsStatus.minus ? 'MINUS' : buttonsStatus.plus ? 'PLUS' : 'CENTRAL' ) + ' pressed!');
-                    }
-                });
+        /* subscribe to GATT notifications on value changes */
+        client.notifyButtons(function(buttonsStatus) {
+            if (buttonsStatus.any) {
+                log('button ' + ( buttonsStatus.minus ? 'MINUS' : buttonsStatus.plus ? 'PLUS' : 'CENTRAL' ) + ' pressed!');
+            } else {
+                log('no buttons pressed');
             }
-        }, 300);
+        });
 
         return Promise.all([
             client.getKeyState().then(function(keyState) {
