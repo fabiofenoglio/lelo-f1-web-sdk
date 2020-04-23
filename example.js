@@ -40,6 +40,7 @@ function runDemo() {
                 log('software revision: ' + value);
             })
         ]);
+
     }).then(function() {
         log('***');
         log('PRESS THE CENTRAL BUTTON TO AUTHORIZE');
@@ -51,6 +52,17 @@ function runDemo() {
         log('connection authorized!');
         log('will power ON motors in 5 seconds');
 
+        /* Poll buttons status every 300 ms */
+        setInterval(function() {
+            if (client.isConnected()) {
+                client.getButtonsStatus().then(function(buttonsStatus) {
+                    if (buttonsStatus.any) {
+                        log('button ' + ( buttonsStatus.minus ? 'MINUS' : buttonsStatus.plus ? 'PLUS' : 'CENTRAL' ) + ' pressed!');
+                    }
+                });
+            }
+        }, 300);
+
         return Promise.all([
             client.getKeyState().then(function(keyState) {
                 log('key state: ' + keyState);
@@ -60,6 +72,18 @@ function runDemo() {
             }),
             client.shutdownMotors(),
             wait(6000)
+        ]);
+
+    }).then(function() {
+        log('resetting use count');
+
+        return Promise.all([
+            client.resetUseCount().then(function(keyState) {
+                return client.getUseCount().then(function(value) {
+                    log('usage counter: ' + value);
+                });
+            }),
+            wait(2000)
         ]);
 
     }).then(function() {
@@ -104,6 +128,7 @@ function runDemo() {
     .then(function() {
         log('disconnecting');
         client.disconnect();
+
     }, function(err) {
         console.error(err);
         log('disconnecting after error: ' + err);

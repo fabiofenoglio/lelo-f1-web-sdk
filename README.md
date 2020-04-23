@@ -13,25 +13,25 @@ See the [Working demo](https://fabiofenoglio.github.io/lelo-f1-web-sdk/example.h
 
 All method return promises and can be chained.
 
-- requestDevice
+- requestDevice -> returns list of devices responding to filter (name equals 'F1s')
 - connect (device)
 - searchAndConnect (shortcut for requestDevice chained with connect)
 - disconnect
 - waitForAuthorization
 
-- getManufacturerName
-- getFirmwareRevision
-- getHardwareRevision
-- getModelNumber
-- getSoftwareRevision
-
-- getBatteryLevel
-- getKeyState 
-- getUseCount
-
-- getMotorsSpeed
-- getMainMotorSpeed
-- getVibratorSpeed
+- getManufacturerName -> returns string
+- getFirmwareRevision -> returns string
+- getHardwareRevision -> returns string
+- getModelNumber -> returns string
+- getSoftwareRevision -> returns string
+- getBatteryLevel -> returns integer
+- getKeyState -> returns boolean
+- getUseCount -> returns integer
+- resetUseCount
+- getButtonsStatus -> returns an object {plus: boolean, minus: boolean, central: boolean}
+- getMotorsSpeed -> returns integers [motorSpeed, vibeSpeed]
+- getMainMotorSpeed -> returns integer
+- getVibratorSpeed -> returns integer
 - setMotorsSpeed (motorSpeed, vibeSpeed) 
 - setMainMotorSpeed (motorSpeed)
 - setVibratorSpeed (vibeSpeed)
