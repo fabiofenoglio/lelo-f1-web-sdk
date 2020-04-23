@@ -52,7 +52,7 @@ function runDemo() {
         log('connection authorized!');
         log('will power ON motors in 5 seconds');
 
-        /* Poll buttons status every 300 ms */
+        /* Poll sensors data every 300 ms */
         setInterval(function() {
             if (client.isConnected()) {
                 client.getButtonsStatus().then(function(buttonsStatus) {
@@ -70,20 +70,12 @@ function runDemo() {
             client.getUseCount().then(function(value) {
                 log('usage counter: ' + value);
             }),
+            client.getTemperatureAndPressure().then(function(sensorData) {
+                log('temperature: ' + sensorData[0] + ' C');
+                log('pressure: ' + sensorData[1] + ' mBar');
+            }),
             client.shutdownMotors(),
             wait(6000)
-        ]);
-
-    }).then(function() {
-        log('resetting use count');
-
-        return Promise.all([
-            client.resetUseCount().then(function(keyState) {
-                return client.getUseCount().then(function(value) {
-                    log('usage counter: ' + value);
-                });
-            }),
-            wait(2000)
         ]);
 
     }).then(function() {

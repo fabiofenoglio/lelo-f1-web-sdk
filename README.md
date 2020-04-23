@@ -36,3 +36,6 @@ All method return promises and can be chained.
 - setMainMotorSpeed (motorSpeed)
 - setVibratorSpeed (vibeSpeed)
 - shutdownMotors
+- getTemperatureAndPressure -> returns floats [temperature in C, pressure in mBar]
+- getTemperature -> returns float in C
+- getPressure-> returns float in mBar
