@@ -28,14 +28,18 @@ All method return promises and can be chained.
 - getKeyState -> returns boolean
 - getUseCount -> returns integer
 - resetUseCount
-- getButtonsStatus -> returns an object {plus: boolean, minus: boolean, central: boolean}
-- getMotorsSpeed -> returns integers [motorSpeed, vibeSpeed]
+- getButtonsStatus -> returns an object {plus: boolean, minus: boolean, central: boolean, any: boolean, none: boolean}
+- getMotorsSpeed -> returns array of integers [motorSpeed, vibeSpeed]
 - getMainMotorSpeed -> returns integer
 - getVibratorSpeed -> returns integer
 - setMotorsSpeed (motorSpeed, vibeSpeed) 
 - setMainMotorSpeed (motorSpeed)
 - setVibratorSpeed (vibeSpeed)
 - shutdownMotors
-- getTemperatureAndPressure -> returns floats [temperature in C, pressure in mBar]
+- getTemperatureAndPressure -> returns array of floats [temperature in C, pressure in mBar]
 - getTemperature -> returns float in C
 - getPressure-> returns float in mBar
+- getAccelerometer -> returns array of integers [x, y, z]
+- getAccelerometerX -> returns integer
+- getAccelerometerY -> returns integer
+- getAccelerometerZ -> returns integer

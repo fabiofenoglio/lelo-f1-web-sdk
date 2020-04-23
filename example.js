@@ -70,12 +70,23 @@ function runDemo() {
             client.getUseCount().then(function(value) {
                 log('usage counter: ' + value);
             }),
+            client.shutdownMotors(),
+            wait(4000)
+        ]);
+
+    }).then(function() {
+        log('reading sensors data');
+
+        return Promise.all([
             client.getTemperatureAndPressure().then(function(sensorData) {
                 log('temperature: ' + sensorData[0] + ' C');
                 log('pressure: ' + sensorData[1] + ' mBar');
             }),
+            client.getAccelerometer().then(function(sensorData) {
+                log('acceleration: X=' + sensorData[0] + ', Y=' + sensorData[1] + ', Z=' + sensorData[2]);
+            }),
             client.shutdownMotors(),
-            wait(6000)
+            wait(2000)
         ]);
 
     }).then(function() {
