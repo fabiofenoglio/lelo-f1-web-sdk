@@ -63,6 +63,10 @@ function runDemo() {
             }
         });
 
+        client.notifyInsertionDepthPercentage(function(sensorData) {
+            log('insertion depth: ' + sensorData + ' %');
+        });
+
         return Promise.all([
             client.getKeyState().then(function(keyState) {
                 log('key state: ' + keyState);
