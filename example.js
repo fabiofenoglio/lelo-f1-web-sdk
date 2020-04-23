@@ -70,6 +70,9 @@ function runDemo() {
             client.getUseCount().then(function(value) {
                 log('usage counter: ' + value);
             }),
+            client.getWakeUp().then(function(value) {
+                log('quick wake-up is: ' + (value ? 'ENABLED' : 'disabled'));
+            }),
             client.shutdownMotors(),
             wait(4000)
         ]);

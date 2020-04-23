@@ -45,3 +45,7 @@ All method return promises and can be chained.
 - getAccelerometerZ -> returns integer
 - getInsertionDepth -> returns integer from 0 to 8
 - getInsertionDepthPercentage -> returns integer from 0 to 100
+- getRotationSpeed -> returns integer in rpm
+- getWakeUp -> returns boolean
+- disableWakeUp
+- enableWakeUp
