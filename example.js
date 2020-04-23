@@ -70,9 +70,18 @@ function runDemo() {
         client.notifyKeyState(function(sensorData) {
             log('(notification) key state: ' + sensorData);
         });
-        
+
         client.notifyRotationSpeed(function(sensorData) {
             log('(notification) rotation speed: ' + sensorData);
+        });
+
+        client.notifyAccelerometer(function(sensorData) {
+            log('(notification) accelerometer: X=' + sensorData[0] + ', Y=' + sensorData[1] + ', Z=' + sensorData[2]);
+        });
+        
+        client.notifyTemperatureAndPressure(function(sensorData) {
+            log('(notification) temperature: ' + sensorData[0] + ' C');
+            log('(notification) pressure: ' + sensorData[1] + ' mBar');
         });
         
         return Promise.all([
@@ -91,24 +100,6 @@ function runDemo() {
             
             client.shutdownMotors(),
             wait(4000)
-        ]);
-
-    }).then(function() {
-        log('reading sensors data');
-
-        return Promise.all([
-            client.getTemperatureAndPressure().then(function(sensorData) {
-                log('temperature: ' + sensorData[0] + ' C');
-                log('pressure: ' + sensorData[1] + ' mBar');
-            }),
-            client.getAccelerometer().then(function(sensorData) {
-                log('acceleration: X=' + sensorData[0] + ', Y=' + sensorData[1] + ', Z=' + sensorData[2]);
-            }),
-            client.getInsertionDepthPercentage().then(function(sensorData) {
-                log('insertion depth: ' + sensorData + ' %');
-            }),
-            client.shutdownMotors(),
-            wait(2000)
         ]);
 
     }).then(function() {

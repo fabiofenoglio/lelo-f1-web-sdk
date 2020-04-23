@@ -19,7 +19,6 @@ All method return promises and can be chained.
 - searchAndConnect (shortcut for requestDevice chained with connect)
 - disconnect
 - waitForAuthorization
-
 - getManufacturerName -> returns string
 - getFirmwareRevision -> returns string
 - getHardwareRevision -> returns string
@@ -55,9 +54,13 @@ All method return promises and can be chained.
 - disableCruiseControl
 - getVibrationSettings -> returns array of integers [value0, value1, ... value7]
 - setVibrationSettings (value0, value1, ... value7)
-- notifyKeyState ( callback(value) ) -> returns handler
+- notifyAccelerometer ( callback(value) ) -> returns handler
 - notifyButtons ( callback(value) ) -> returns handler
 - notifyInsertionDepth ( callback(value) ) -> returns handler
 - notifyInsertionDepthPercentage ( callback(value) ) -> returns handler
+- notifyKeyState ( callback(value) ) -> returns handler
 - notifyRotationSpeed ( callback(value) ) -> returns handler
+- notifyTemperatureAndPressure ( callback(value) ) -> returns handler
+- notifyTemperature ( callback(value) ) -> returns handler
+- notifyPressure ( callback(value) ) -> returns handler
 - unregister (handler)
