@@ -24,14 +24,14 @@ All method return promises and can be chained.
 - getHardwareRevision -> returns string
 - getModelNumber -> returns string
 - getSoftwareRevision -> returns string
-- getBatteryLevel -> returns integer
+- getBatteryLevel -> returns integer from 0 to 100
 - getKeyState -> returns boolean
 - getUseCount -> returns integer
 - resetUseCount
 - getButtonsStatus -> returns an object {plus: boolean, minus: boolean, central: boolean, any: boolean, none: boolean}
-- getMotorsSpeed -> returns array of integers [motorSpeed, vibeSpeed]
-- getMainMotorSpeed -> returns integer
-- getVibratorSpeed -> returns integer
+- getMotorsSpeed -> returns array of integers [motorSpeed, vibeSpeed] from 0 to 100
+- getMainMotorSpeed -> returns integer from 0 to 100
+- getVibratorSpeed -> returns integer from 0 to 100
 - setMotorsSpeed (motorSpeed, vibeSpeed) 
 - setMainMotorSpeed (motorSpeed)
 - setVibratorSpeed (vibeSpeed)
@@ -43,3 +43,5 @@ All method return promises and can be chained.
 - getAccelerometerX -> returns integer
 - getAccelerometerY -> returns integer
 - getAccelerometerZ -> returns integer
+- getInsertionDepth -> returns integer from 0 to 8
+- getInsertionDepthPercentage -> returns integer from 0 to 100
