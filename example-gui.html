@@ -57,7 +57,7 @@
               <small> HW {{ hardwareRevision || '--' }}, FW {{ firmwareRevision || '--' }}, SW {{ softwareRevision || '--' }} </small>
             </span>
             <span ng-if="!authorized">
-              <br/><br/>
+              <br/>
               <i class="fas fa-shield-alt"></i>
               Connection is not authorized. Limited functionalities.
               <br/>
@@ -65,7 +65,7 @@
               </small>
             </span>
             <span ng-if="authorized">
-              <br/><br/>
+              <br/>
               <small>
                 <i class="fas fa-shield-alt"></i>
                 Connection authorized. Full functionalities available.
@@ -107,7 +107,7 @@
       <hr/>
 
       <div class="card-deck mt-3" ng-if="isConnected()">
-        <div class="card border-{{ buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR ? 'dark' : 'secondary' }} motor-card text-center">
+        <div class="card border-{{ buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR || buttonsAssignment === BUTTONS_ASSIGNMENT_BOTH_MOTORS ? 'dark' : 'secondary' }} motor-card text-center">
           <div class="card-body">
             <div class="icon-container">
               <span class="fa-stack fa-2x">
@@ -141,7 +141,7 @@
         </div>
 
         <div class="card border-{{ buttonsStatus.any ? 'primary' : 'secondary' }} text-center">
-          <div class="card-body">
+          <div class="card-body" style="padding-top: 2.5em;">
             <span class="fa-stack fa-2x button-icon {{ buttonsStatus.plus ? 'active' : '' }}">
               <i class="fas fa-circle fa-stack-2x button-icon-part-background"></i>
               <i class="fas fa-plus fa-stack-1x fa-inverse button-icon-part-icon"></i>
@@ -158,15 +158,15 @@
           <div class="card-footer">
             Controlling
             <span><strong>  
-              <i class="fas fa-angle-{{ buttonsAssignment === BUTTONS_ASSIGNMENT_VIBE_MOTOR ? 'right' : 'left' }}"></i>
-              {{ buttonsAssignment === BUTTONS_ASSIGNMENT_VIBE_MOTOR ? 'the vibrator.' : 'the main motor.' }}
+              <i class="fas fa-{{ buttonsAssignment === BUTTONS_ASSIGNMENT_VIBE_MOTOR ? 'angle-right' : buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR ? 'angle-left' : 'arrows-alt-h' }}"></i>
+              {{ buttonsAssignment === BUTTONS_ASSIGNMENT_VIBE_MOTOR ? 'the vibrator.' : buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR ? 'the main motor.' : 'both motors together.' }}
             </strong></span>
             <br/>
             Click central button to toggle.
           </div>
         </div>
         
-        <div class="card border-{{ buttonsAssignment === BUTTONS_ASSIGNMENT_VIBE_MOTOR ? 'dark' : 'secondary' }} motor-card text-center">
+        <div class="card border-{{ buttonsAssignment === BUTTONS_ASSIGNMENT_VIBE_MOTOR || buttonsAssignment === BUTTONS_ASSIGNMENT_BOTH_MOTORS ? 'dark' : 'secondary' }} motor-card text-center">
           <div class="card-body">
             <div class="icon-container">
               <span class="fa-stack fa-2x">
@@ -258,8 +258,6 @@
       </div>
     </main>
   
-    <textarea class="form-control console" rows="3" ng-model="log" ng-disabled="true"></textarea>
-
     <div class="overlay" ng-if="pending" ng-cloak>
       <div class="overlay-text">
         <i class="fa fa-circle-o-notch fa-spin fa-2x" aria-hidden="true"></i>

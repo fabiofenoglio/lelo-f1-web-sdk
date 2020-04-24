@@ -7,7 +7,9 @@ This is an unofficial vanilla JavaScript  client based on the new Web Bluetooth 
 
 ### WARNING: Work in progress! Currently developing on Chrome.
 
-See the [Working demo](https://fabiofenoglio.github.io/lelo-f1-web-sdk/example.html)
+See the [simple working demo](https://fabiofenoglio.github.io/lelo-f1-web-sdk/example.html)
+
+See the [AngularJS working demo](https://fabiofenoglio.github.io/lelo-f1-web-sdk/example-gui.html)
 
 
 ### Available methods

@@ -7,8 +7,10 @@ app.controller('demoController', function($scope) {
     const SCALE_SPEED_STEP = 5;
     const BUTTONS_ASSIGNMENT_MAIN_MOTOR = 1;
     const BUTTONS_ASSIGNMENT_VIBE_MOTOR = 2;
+    const BUTTONS_ASSIGNMENT_BOTH_MOTORS = 3;
     $scope.BUTTONS_ASSIGNMENT_MAIN_MOTOR = BUTTONS_ASSIGNMENT_MAIN_MOTOR;
     $scope.BUTTONS_ASSIGNMENT_VIBE_MOTOR = BUTTONS_ASSIGNMENT_VIBE_MOTOR;
+    $scope.BUTTONS_ASSIGNMENT_BOTH_MOTORS = BUTTONS_ASSIGNMENT_BOTH_MOTORS;
 
     $scope.pending = 0;
     $scope.log = 'click on CONNECT to begin\n';
@@ -149,7 +151,7 @@ app.controller('demoController', function($scope) {
             $scope.buttonsAssignment = BUTTONS_ASSIGNMENT_MAIN_MOTOR;
 
         } else if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR) {
-            $scope.buttonsAssignment = BUTTONS_ASSIGNMENT_VIBE_MOTOR;
+            $scope.buttonsAssignment = BUTTONS_ASSIGNMENT_BOTH_MOTORS;
 
         } else {
             $scope.buttonsAssignment = BUTTONS_ASSIGNMENT_VIBE_MOTOR;
@@ -163,6 +165,9 @@ app.controller('demoController', function($scope) {
             $scope.incrementVibeMotor();
         } else if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR) {
             $scope.incrementMainMotor();
+        } else if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_BOTH_MOTORS) {
+            $scope.incrementMainMotor();
+            $scope.incrementVibeMotor();
         }
 
         refresh();
@@ -173,6 +178,9 @@ app.controller('demoController', function($scope) {
             $scope.decrementVibeMotor();
         } else if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR) {
             $scope.decrementMainMotor();
+        } else if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_BOTH_MOTORS) {
+            $scope.decrementMainMotor();
+            $scope.decrementVibeMotor();
         }
 
         refresh();
@@ -368,11 +376,13 @@ app.controller('demoController', function($scope) {
 
     function log(text) {
         $scope.log = $scope.log + text + '\n';
+        /*
         refresh();
         const textarea = $('.console')[0];
         setInterval(function(){
             textarea.scrollTop = textarea.scrollHeight;
         }, 300);
+        */
     }
 
     function refresh() {
