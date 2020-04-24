@@ -20,3 +20,42 @@
     transform: translate(-50%,-50%);
     -ms-transform: translate(-50%,-50%);
 }
+
+.console {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    resize: none;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+main {
+    margin-top: 100px;
+    margin-bottom: 100px;
+}
+
+.motor-card .btn {
+    min-width: 6em;
+}
+
+.motor-card .card-body {
+    padding-top: 0.2em;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.motor-card .progress {
+    margin-top: 2em;
+    height: 30px;
+}
+
+.motor-card .progress-bar {
+    height: 30px;
+}
+
+.motor-card .icon-container {
+    height: 9em;
+}

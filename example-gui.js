@@ -2,20 +2,23 @@ var app = angular.module('demoApp', []);
 
 app.controller('demoController', function($scope) {
     const client = leloF1SdkClientProvider.getClient();
-    
+    const BATTERY_SAVING_TRESHOLD = 15;
+    const SCALE_SPEED_MIN = 30;
+    const SCALE_SPEED_STEP = 5;
+
     $scope.pending = 0;
-    $scope.log = '';
+    $scope.log = 'click on CONNECT to begin\n';
     $scope.errors = [];
     $scope.authorized = false;
-    
+    $scope.batterySaving = false;
     $scope.depth = null;
+
+    const notifications = [];
+    const sensorNotifications = [];
 
     setTimeout(function() {
         $("#loading-overlay").remove();
     }, 250);
-
-    const notifications = [];
-    const sensorNotifications = [];
 
     setInterval(checkConnectionStatus, 2000);
 
@@ -37,6 +40,7 @@ app.controller('demoController', function($scope) {
 
             readDeviceInfo();
             subscribeNotifications();
+            checkMotorsLevel();
             refresh();
 
         }, function(err) {
@@ -76,6 +80,102 @@ app.controller('demoController', function($scope) {
             $scope.pending --;
         });
     };
+
+    $scope.incrementMainMotor = function() {
+        let toSet = ($scope.mainMotorLevel || 0) + SCALE_SPEED_STEP;
+        if (toSet > 100) {
+            toSet = 100;
+        }
+        client.setMotorsSpeed(toDeviceSpeed(toSet), toDeviceSpeed($scope.vibeMotorLevel)).then(function() {
+            $scope.mainMotorLevel = toSet;
+            refresh();
+        });
+    };
+
+    $scope.decrementMainMotor = function() {
+        let toSet = ($scope.mainMotorLevel || 0) - SCALE_SPEED_STEP;
+        if (toSet < 0) {
+            toSet = 0;
+        }
+        client.setMotorsSpeed(toDeviceSpeed(toSet), toDeviceSpeed($scope.vibeMotorLevel)).then(function() {
+            $scope.mainMotorLevel = toSet;
+            refresh();
+        });
+    };
+
+    $scope.stopMainMotor = function() {
+        client.setMotorsSpeed(0, toDeviceSpeed($scope.vibeMotorLevel)).then(function() {
+            $scope.mainMotorLevel = 0;
+            refresh();
+        });
+    };
+
+    $scope.incrementVibeMotor = function() {
+        let toSet = ($scope.vibeMotorLevel || 0) + SCALE_SPEED_STEP;
+        if (toSet > 100) {
+            toSet = 100;
+        }
+        client.setMotorsSpeed(toDeviceSpeed($scope.mainMotorLevel), toDeviceSpeed(toSet)).then(function() {
+            $scope.vibeMotorLevel = toSet;
+        });
+    };
+
+    $scope.decrementVibeMotor = function() {
+        let toSet = ($scope.vibeMotorLevel || 0) - SCALE_SPEED_STEP;
+        if (toSet < 0) {
+            toSet = 0;
+        }
+        client.setMotorsSpeed(toDeviceSpeed($scope.mainMotorLevel), toDeviceSpeed(toSet)).then(function() {
+            $scope.vibeMotorLevel = toSet;
+        });
+    };
+
+    $scope.stopVibeMotor = function() {
+        client.setMotorsSpeed($scope.mainMotorLevel, 0).then(function() {
+            $scope.vibeMotorLevel = 0;
+        });
+    };
+
+    function onAuthorized() {
+        log('connection authorized')
+
+        setTimeout(function() {
+            client.shutdownMotors();
+            checkMotorsLevel();
+            refresh();
+        }, 500);
+        
+        checkMotorsLevel();
+        refresh();
+    }
+
+    function toLocalSpeed(deviceSpeed) {
+        // scale device 30-100 to local 0-100
+        if (deviceSpeed < SCALE_SPEED_MIN) {
+            return 0;
+        } else {
+            return (deviceSpeed - SCALE_SPEED_MIN) * (100 / (100 - SCALE_SPEED_MIN));
+        }
+    }
+
+    function toDeviceSpeed(localSpeed) {
+        // scale local 0-100 to device 30-100
+        if (localSpeed < 1) {
+            return 0;
+        } else {
+            return SCALE_SPEED_MIN + ( (100 - SCALE_SPEED_MIN) * localSpeed / 100.0 );
+        }
+    }
+
+    function checkMotorsLevel() {
+        if ($scope.isConnected()) {
+            client.getMotorsSpeed().then(function(speeds) {
+                $scope.mainMotorLevel = toLocalSpeed(speeds[0]);
+                $scope.vibeMotorLevel = toLocalSpeed(speeds[1]);
+                refresh();
+            });
+        }
+    }
 
     function checkConnectionStatus() {
         if ($scope.isConnected()) {
@@ -117,6 +217,21 @@ app.controller('demoController', function($scope) {
 
     function batteryLevelChanged(value) {
         $scope.batteryLevel = value;
+        if (!$scope.batterySaving) {
+            if (value < BATTERY_SAVING_TRESHOLD) {
+                enterBatterySaving();
+            }
+        }
+        refresh();
+    }
+
+    function enterBatterySaving() {
+        $scope.batterySaving = true;
+        for (const notification of sensorNotifications) {
+            notification.unregister();
+        }
+        sensorNotifications.length = 0;
+        log('entering power saving mode');
         refresh();
     }
 
@@ -125,9 +240,7 @@ app.controller('demoController', function($scope) {
         $scope.authorized = value;
         if (value && !previous) {
             // just authorized
-            setTimeout(function() {
-                client.shutdownMotors();
-            }, 500);
+            onAuthorized();
         }
         refresh();
     }
@@ -144,19 +257,18 @@ app.controller('demoController', function($scope) {
     }
 
     function readDeviceInfo() {
-        Promise.all([
-            client.getBatteryLevel().then(batteryLevelChanged),
-            client.getManufacturerName().then(toScope('manufacturerName')),
-            client.getModelNumber().then(toScope('modelNumber')),
-            client.getHardwareRevision().then(toScope('hardwareRevision')),
-            client.getFirmwareRevision().then(toScope('firmwareRevision')),
-            client.getSoftwareRevision().then(toScope('softwareRevision'))
-        ]).then(refresh);
+        client.getBatteryLevel().then(batteryLevelChanged);
+        client.getManufacturerName().then(toScope('manufacturerName'));
+        client.getModelNumber().then(toScope('modelNumber'));
+        client.getHardwareRevision().then(toScope('hardwareRevision'));
+        client.getFirmwareRevision().then(toScope('firmwareRevision'));
+        client.getSoftwareRevision().then(toScope('softwareRevision'));
     }
 
     function clearConnection() {
         $scope.errors = [];
         $scope.authorized = false;
+        $scope.batterySaving = false;
         
         $scope.depth = null;
         $scope.manufacturerName = null;
@@ -166,11 +278,14 @@ app.controller('demoController', function($scope) {
         $scope.softwareRevision = null;
         $scope.acceleration = null;
         $scope.depth = null;
-        $scope.rotationSpeed = null;
         $scope.buttonsStatus = null;
         $scope.temperature = null;
         $scope.pressure = null;
         $scope.batteryLevel = null;
+
+        $scope.rotationSpeed = null;
+        $scope.mainMotorLevel = null;
+        $scope.vibeMotorLevel = null;
 
         notifications.length = 0;
         sensorNotifications.length = 0;
@@ -199,6 +314,10 @@ app.controller('demoController', function($scope) {
     function log(text) {
         $scope.log = $scope.log + text + '\n';
         refresh();
+        const textarea = $('.console')[0];
+        setInterval(function(){
+            textarea.scrollTop = textarea.scrollHeight;
+        }, 300);
     }
 
     function refresh() {
