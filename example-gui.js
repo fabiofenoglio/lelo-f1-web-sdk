@@ -7,13 +7,19 @@ app.controller('demoController', function($scope) {
     $scope.log = '';
     $scope.errors = [];
     $scope.authorized = false;
+    
+    $scope.depth = null;
 
-    // FAKE SIMULATION:
-    $scope.batteryLevel = 80;
-    $scope.temperature = 24.15;
-    $scope.pressure = 980.75;
-    $scope.acceleration = [100, 200, 1000];
-    $scope.depth = 80;
+    setTimeout(function() {
+        $("#loading-overlay").remove();
+    }, 250);
+
+    const notifications = [];
+    const sensorNotifications = [];
+
+    setInterval(checkConnectionStatus, 2000);
+
+    setInterval(checkBatteryStatus, 5000);
 
     $scope.isConnected = function() {
         return client && client.isConnected();
@@ -29,9 +35,8 @@ app.controller('demoController', function($scope) {
             $scope.pending --;
             $scope.authorized = false;
 
-            client.notifyKeyState(keyStateChanged);
-
             readDeviceInfo();
+            subscribeNotifications();
             refresh();
 
         }, function(err) {
@@ -48,7 +53,7 @@ app.controller('demoController', function($scope) {
         client.disconnect().then(function() {
             log('device disconnected');
             $scope.pending --;
-            refresh();
+            clearConnection();
 
         }, function(err) {
             error('error disconnecting', err);
@@ -64,7 +69,7 @@ app.controller('demoController', function($scope) {
         client.shutdown().then(function() {
             log('device shutdown and disconnected');
             $scope.pending --;
-            refresh();
+            clearConnection();
 
         }, function(err) {
             error('error shutting down device', err);
@@ -72,40 +77,123 @@ app.controller('demoController', function($scope) {
         });
     };
 
-    function readDeviceInfo() {
-        Promise.all([
-            client.getBatteryLevel().then(function(value) {
-                $scope.batteryLevel = value;
-            }),
-            client.getManufacturerName().then(function(value) {
-                $scope.manufacturerName = value;
-            }),
-            client.getModelNumber().then(function(value) {
-                $scope.modelNumber = value;
-            }),
-            client.getHardwareRevision().then(function(value) {
-                $scope.hardwareRevision = value;
-            }),
-            client.getFirmwareRevision().then(function(value) {
-                $scope.firmwareRevision = value;
-            }),
-            client.getSoftwareRevision().then(function(value) {
-                $scope.softwareRevision = value;
-            })
-        ]).then(refresh);
+    function checkConnectionStatus() {
+        if ($scope.isConnected()) {
+            client.ping().then(function() {
+                // still connected
+            }, function(err) {
+                // device not responding
+                setTimeout(function() {
+                    if ($scope.isConnected()) {
+                        error('device is not responding', err);
+                        $scope.authorized = false;
+                        client.disconnect();
+                        clearConnection();
+                    }
+                }, 500);
+            });
+        }
+    }
+
+    function checkBatteryStatus() {
+        if ($scope.isConnected()) {
+            client.getBatteryLevel().then(function(batteryLevel) {
+                batteryLevelChanged(batteryLevel);
+            });
+        }
+    }
+
+    function subscribeNotifications() {
+        $scope.depth = 0;
+
+        notifications.push(client.notifyKeyState(keyStateChanged));
+        notifications.push(client.notifyButtons(buttonsChanged));
+
+        sensorNotifications.push(client.notifyAccelerometer(toScope('acceleration')));
+        sensorNotifications.push(client.notifyInsertionDepthPercentage(toScope('depth')));
+        sensorNotifications.push(client.notifyRotationSpeed(toScope('rotationSpeed')));
+        sensorNotifications.push(client.notifyTemperatureAndPressure(temperatureAndPressureChanged));
+    }
+
+    function batteryLevelChanged(value) {
+        $scope.batteryLevel = value;
+        refresh();
     }
 
     function keyStateChanged(value) {
+        const previous = $scope.authorized;
         $scope.authorized = value;
+        if (value && !previous) {
+            // just authorized
+            setTimeout(function() {
+                client.shutdownMotors();
+            }, 500);
+        }
         refresh();
+    }
+
+    function buttonsChanged(value) {
+        $scope.buttonsStatus = value;
+        refresh();
+    }
+
+    function temperatureAndPressureChanged(value) {
+        $scope.temperature = value[0];
+        $scope.pressure = value[1];
+        refresh();
+    }
+
+    function readDeviceInfo() {
+        Promise.all([
+            client.getBatteryLevel().then(batteryLevelChanged),
+            client.getManufacturerName().then(toScope('manufacturerName')),
+            client.getModelNumber().then(toScope('modelNumber')),
+            client.getHardwareRevision().then(toScope('hardwareRevision')),
+            client.getFirmwareRevision().then(toScope('firmwareRevision')),
+            client.getSoftwareRevision().then(toScope('softwareRevision'))
+        ]).then(refresh);
+    }
+
+    function clearConnection() {
+        $scope.errors = [];
+        $scope.authorized = false;
+        
+        $scope.depth = null;
+        $scope.manufacturerName = null;
+        $scope.modelNumber = null;
+        $scope.hardwareRevision = null;
+        $scope.firmwareRevision = null;
+        $scope.softwareRevision = null;
+        $scope.acceleration = null;
+        $scope.depth = null;
+        $scope.rotationSpeed = null;
+        $scope.buttonsStatus = null;
+        $scope.temperature = null;
+        $scope.pressure = null;
+        $scope.batteryLevel = null;
+
+        notifications.length = 0;
+        sensorNotifications.length = 0;
+        
+        refresh();
+    }
+
+    function toScope(name) {
+        return function(value) {
+            $scope[name] = value;
+            refresh();
+        }
     }
 
     function error(prefix, err) {
         console.error(prefix, err)
         log(prefix + ': ' + err);
         $scope.errors.push(prefix + ': ' + err);
-        debugger;
         refresh();
+        setTimeout(function() {
+            $scope.errors.splice(0, 1);
+            refresh();
+        }, 5000);
     }
 
     function log(text) {
