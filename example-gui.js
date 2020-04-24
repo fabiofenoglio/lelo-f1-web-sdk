@@ -5,6 +5,10 @@ app.controller('demoController', function($scope) {
     const BATTERY_SAVING_TRESHOLD = 15;
     const SCALE_SPEED_MIN = 30;
     const SCALE_SPEED_STEP = 5;
+    const BUTTONS_ASSIGNMENT_MAIN_MOTOR = 1;
+    const BUTTONS_ASSIGNMENT_VIBE_MOTOR = 2;
+    $scope.BUTTONS_ASSIGNMENT_MAIN_MOTOR = BUTTONS_ASSIGNMENT_MAIN_MOTOR;
+    $scope.BUTTONS_ASSIGNMENT_VIBE_MOTOR = BUTTONS_ASSIGNMENT_VIBE_MOTOR;
 
     $scope.pending = 0;
     $scope.log = 'click on CONNECT to begin\n';
@@ -12,6 +16,8 @@ app.controller('demoController', function($scope) {
     $scope.authorized = false;
     $scope.batterySaving = false;
     $scope.depth = null;
+    $scope.buttonsAssignment = BUTTONS_ASSIGNMENT_VIBE_MOTOR;
+    $scope.buttonsStatus = {};
 
     const notifications = [];
     const sensorNotifications = [];
@@ -117,6 +123,7 @@ app.controller('demoController', function($scope) {
         }
         client.setMotorsSpeed(toDeviceSpeed($scope.mainMotorLevel), toDeviceSpeed(toSet)).then(function() {
             $scope.vibeMotorLevel = toSet;
+            refresh();
         });
     };
 
@@ -133,8 +140,43 @@ app.controller('demoController', function($scope) {
     $scope.stopVibeMotor = function() {
         client.setMotorsSpeed($scope.mainMotorLevel, 0).then(function() {
             $scope.vibeMotorLevel = 0;
+            refresh();
         });
     };
+
+    $scope.centralButtonPressed = function() {
+        if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_VIBE_MOTOR) {
+            $scope.buttonsAssignment = BUTTONS_ASSIGNMENT_MAIN_MOTOR;
+
+        } else if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR) {
+            $scope.buttonsAssignment = BUTTONS_ASSIGNMENT_VIBE_MOTOR;
+
+        } else {
+            $scope.buttonsAssignment = BUTTONS_ASSIGNMENT_VIBE_MOTOR;
+        }
+
+        refresh();
+    }
+
+    $scope.plusButtonPressed = function() {
+        if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_VIBE_MOTOR) {
+            $scope.incrementVibeMotor();
+        } else if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR) {
+            $scope.incrementMainMotor();
+        }
+
+        refresh();
+    }
+
+    $scope.minusButtonPressed = function() {
+        if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_VIBE_MOTOR) {
+            $scope.decrementVibeMotor();
+        } else if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR) {
+            $scope.decrementMainMotor();
+        }
+
+        refresh();
+    }
 
     function onAuthorized() {
         log('connection authorized')
@@ -247,6 +289,17 @@ app.controller('demoController', function($scope) {
 
     function buttonsChanged(value) {
         $scope.buttonsStatus = value;
+        
+        if ($scope.authorized) {
+            if (value.central) {
+                $scope.centralButtonPressed();
+            } else if (value.minus) {
+                $scope.minusButtonPressed();
+            } else if (value.plus) {
+                $scope.plusButtonPressed();
+            }
+        }
+
         refresh();
     }
 
@@ -289,6 +342,8 @@ app.controller('demoController', function($scope) {
 
         notifications.length = 0;
         sensorNotifications.length = 0;
+
+        // $scope.buttonsAssignment = BUTTONS_ASSIGNMENT_VIBE_MOTOR;
         
         refresh();
     }

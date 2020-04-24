@@ -59,3 +59,7 @@ main {
 .motor-card .icon-container {
     height: 9em;
 }
+
+.button-icon.active .button-icon-part-background {
+    color: #a50000;
+}
