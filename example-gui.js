@@ -351,8 +351,6 @@ app.controller('demoController', function($scope) {
     }
 
     function batteryLevelChanged(value) {
-        if (!$scope.cnt) $scope.cnt = 0;
-        if ($scope.cnt ++ >= 5) value = 12;
         $scope.batteryLevel = value;
         if (!$scope.batterySaving) {
             if (value < BATTERY_SAVING_TRESHOLD) {
