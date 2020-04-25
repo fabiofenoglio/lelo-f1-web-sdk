@@ -10,6 +10,11 @@ function wait(millis) {
     });
 }
 
+if (!leloF1SdkClientProvider.isSupported()) {
+    alert('sorry, your browser does not support Web Bluetooth API. Try with Chrome! Or see https://github.com/WebBluetoothCG/web-bluetooth/blob/master/implementation-status.md');
+    $("#demo-button").remove();
+}
+
 function runDemo() {
     $("#demo-button").remove();
 
