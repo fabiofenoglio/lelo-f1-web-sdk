@@ -36,7 +36,7 @@ app.controller('demoController', function($scope) {
 
     $scope.isConnected = function() {
         return client && client.isConnected();
-    }
+    };
 
     $scope.connect = function() {
         $scope.pending ++;
@@ -170,7 +170,7 @@ app.controller('demoController', function($scope) {
         }
 
         refresh();
-    }
+    };
 
     $scope.plusButtonPressed = function() {
         if (!$scope.isConnected() || !$scope.authorized) {
@@ -189,7 +189,7 @@ app.controller('demoController', function($scope) {
         }
 
         refresh();
-    }
+    };
 
     $scope.minusButtonPressed = function() {
         if (!$scope.isConnected() || !$scope.authorized) {
@@ -208,7 +208,7 @@ app.controller('demoController', function($scope) {
         }
 
         refresh();
-    }
+    };
 
     $scope.applyCruiseControlModal = function() {
         $('#cruiseControlModal').modal('hide');
@@ -242,7 +242,7 @@ app.controller('demoController', function($scope) {
             $scope.pending --;
             error('error applying vibration settings', err);
         });
-    }
+    };
 
     function onAuthorized() {
         console.log('connection authorized')
