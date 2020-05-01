@@ -152,6 +152,44 @@ app.controller('demoController', function($scope) {
         });
     };
 
+    $scope.incrementBothMotors = function() {
+        let toSetMain = ($scope.mainMotorLevel || 0) + SCALE_SPEED_STEP;
+        if (toSetMain > 100) {
+            toSetMain = 100;
+        } else if (toSetMain < SCALE_SPEED_MIN) {
+            toSetMain = SCALE_SPEED_MIN;
+        }
+
+        let toSetVibe = ($scope.vibeMotorLevel || 0) + SCALE_SPEED_STEP;
+        if (toSetVibe > 100) {
+            toSetVibe = 100;
+        } else if (toSetVibe < SCALE_SPEED_MIN) {
+            toSetVibe = SCALE_SPEED_MIN;
+        }
+        client.setMotorsSpeed(toDeviceSpeed(toSetMain), toDeviceSpeed(toSetVibe)).then(function() {
+            $scope.mainMotorLevel = toSetMain;
+            $scope.vibeMotorLevel = toSetVibe;
+            refresh();
+        });
+    };
+
+    $scope.decrementBothMotors = function() {
+        let toSetMain = ($scope.mainMotorLevel || 0) - SCALE_SPEED_STEP;
+        if (toSetMain < SCALE_SPEED_MIN) {
+            toSetMain = SCALE_SPEED_MIN;
+        }
+
+        let toSetVibe = ($scope.vibeMotorLevel || 0) - SCALE_SPEED_STEP;
+        if (toSetVibe < SCALE_SPEED_MIN) {
+            toSetVibe = SCALE_SPEED_MIN;
+        }
+        client.setMotorsSpeed(toDeviceSpeed(toSetMain), toDeviceSpeed(toSetVibe)).then(function() {
+            $scope.mainMotorLevel = toSetMain;
+            $scope.vibeMotorLevel = toSetVibe;
+            refresh();
+        });
+    };
+
     $scope.centralButtonPressed = function() {
         if (!$scope.isConnected() || !$scope.authorized) {
             return;
@@ -183,8 +221,7 @@ app.controller('demoController', function($scope) {
             } else if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR) {
                 $scope.incrementMainMotor();
             } else if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_BOTH_MOTORS) {
-                $scope.incrementMainMotor();
-                $scope.incrementVibeMotor();
+                $scope.incrementBothMotors();
             }
         }
 
@@ -202,8 +239,7 @@ app.controller('demoController', function($scope) {
             } else if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR) {
                 $scope.decrementMainMotor();
             } else if ($scope.buttonsAssignment === BUTTONS_ASSIGNMENT_BOTH_MOTORS) {
-                $scope.decrementMainMotor();
-                $scope.decrementVibeMotor();
+                $scope.decrementBothMotors();
             }
         }
 
