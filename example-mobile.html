@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en" ng-app="demoApp">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/lux/bootstrap.min.css" rel="stylesheet" integrity="sha384-oOs/gFavzADqv3i5nCM+9CzXe3e5vXLXZ5LZ7PplpsWpTCufB7kqkTlC9FtZ5nJo" crossorigin="anonymous">
+    <!--<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">-->
+    <link href="example-mobile.css" rel="stylesheet">
+
+    <title>LELO F1s Web Client</title>
+  </head>
+  <body ng-controller="demoController">
+      
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">LELO F1s Web Client</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" rel="noopener noreferrer" href="https://github.com/fabiofenoglio/lelo-f1-web-sdk" target="_blank">GitHub</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" rel="noopener noreferrer" href="https://www.lelo.com/f1s-developers-kit-red" target="_blank">LELO F1s</a>
+            </li>
+          </ul>
+        </div>
+    </nav>
+
+    <main role="main" class="container" ng-cloak>
+      <div class="row" ng-if="!isConnected()">
+          <div class="col-12">
+              <h1></h1>
+              <p class="lead">
+                  Press on the 'CONNECT' button to run the demo.
+                  <br/><br/>
+                  If you have trouble connecting the device, turn it off, refresh the page, turn it on and press the button immediately after.
+              </p>
+          </div>
+      </div>
+
+      <div class="row">
+        <div class="col-12">
+          <p class="alert alert-warning" ng-if="!isConnected()">
+            <i class="fas fa-eye-slash"></i>
+            No device connected
+          </p>
+          <p class="alert alert-{{ authorized ? 'success' : 'warning' }}" ng-if="isConnected()">
+            Connected to {{ manufacturerName }} {{ modelNumber }}
+          </p>
+        </div>
+      </div>
+
+      <div class="row" ng-if="isConnected() && !authorized">
+        <div class="col-12">
+          <p class="alert alert-warning">
+            <i class="fas fa-shield-alt"></i>
+            Connection is not authorized. Limited functionalities.
+            <br/>
+            <small> Please press the central button to confirm connection.
+            </small>
+          </p>
+        </div>
+      </div>
+
+      <div class="row" ng-if="errors && errors.length">
+        <div class="col-12">
+          <p class="alert alert-danger" ng-repeat="error in errors track by $index">
+            {{ error }}
+          </p>
+        </div>
+      </div>
+
+      <div class="row" ng-if="batterySaving">
+        <div class="col-12">
+          <p class="alert alert-warning">
+            <i class="fas fa-charging-station"></i>
+            Battery is low!
+            <br/>
+            <small>Real time sensor data streaming has been disabled to save power.</small>
+          </p>
+        </div>
+      </div>
+
+      <div class="row mt-3" ng-if="!isConnected()">
+        <div class="col-12">
+            <button type="button" class="btn btn-primary btn-block" ng-click="connect()" ng-disabled="pending || isConnected() ">CONNECT TO DEVICE</button>
+        </div>
+      </div>
+
+      <div class="row mt-3" ng-if="isConnected()">
+        <div class="col-6">
+            <button type="button" class="btn btn-warning btn-block" ng-click="disconnect()" ng-disabled="pending || !isConnected()">DISCONNECT</button>
+        </div>
+        <div class="col-6">
+            <button type="button" class="btn btn-danger btn-block" ng-click="shutdown()" ng-disabled="pending || !authorized || !isConnected()">SHUTDOWN</button>
+        </div>
+      </div>
+
+      <hr/>
+
+      <div class="card-deck mt-3" ng-if="isConnected()">
+
+        <div class="card border-{{ buttonsStatus.any ? 'primary' : 'secondary' }} text-center">
+          <div class="card-body">
+            <span class="fa-stack fa-2x button-icon {{ buttonsStatus.plus ? 'active' : '' }}"
+              ng-disabled="!isConnected() || !authorized || cruiseControlStatus" ng-click="plusButtonPressed()"
+            >
+              <i class="fas fa-circle fa-stack-2x button-icon-part-background"></i>
+              <i class="fas fa-plus fa-stack-1x fa-inverse button-icon-part-icon"></i>
+            </span>
+            <span class="fa-stack fa-3x button-icon {{ buttonsStatus.central ? 'active' : '' }}"
+            ng-disabled="!isConnected() || cruiseControlStatus" ng-click="centralButtonPressed()"
+            >
+              <i class="fas fa-circle fa-stack-2x button-icon-part-background"></i>
+              <i class="fas fa-power-off fa-stack-1x fa-inverse button-icon-part-icon"></i>
+            </span>
+            <span class="fa-stack fa-2x button-icon {{ buttonsStatus.minus ? 'active' : '' }}"
+              ng-disabled="!isConnected() || !authorized || cruiseControlStatus" ng-click="minusButtonPressed()"
+            >
+              <i class="fas fa-circle fa-stack-2x button-icon-part-background"></i>
+              <i class="fas fa-minus fa-stack-1x fa-inverse button-icon-part-icon"></i>
+            </span>
+          </div>
+          <div class="card-footer" ng-if="isConnected() && authorized && !cruiseControlStatus">
+            Controlling
+            <span><strong>  
+              <i class="fas fa-{{ buttonsAssignment === BUTTONS_ASSIGNMENT_VIBE_MOTOR ? 'angle-down' : buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR ? 'angle-up' : 'arrows-alt-h' }}"></i>
+              {{ buttonsAssignment === BUTTONS_ASSIGNMENT_VIBE_MOTOR ? 'the vibrator.' : buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR ? 'the main motor.' : 'both motors together.' }}
+            </strong></span>
+            <br/>
+            Click central button to toggle.
+          </div>
+          <div class="card-footer" ng-if="isConnected() && !authorized">
+            Connection is not authorized.
+            <span><strong>  
+              Press central button to authorize.
+            </strong></span>
+          </div>
+        </div>
+        
+        <div class="card border-{{ buttonsAssignment === BUTTONS_ASSIGNMENT_MAIN_MOTOR || buttonsAssignment === BUTTONS_ASSIGNMENT_BOTH_MOTORS ? 'dark' : 'secondary' }} motor-card text-center">
+          <div class="card-body">
+            <div>
+              <h5 class="card-title">
+                  Main motor {{ mainMotorLevel || '--' }} %
+                  <span ng-if="!batterySaving"> - {{ rotationSpeed }} rpm </span>
+              </h5>
+            </div>
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped" role="progressbar" style="width: {{ mainMotorLevel }}%" aria-valuenow="{{ mainMotorLevel }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+          <div class="card-footer" ng-if="!cruiseControlStatus">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-danger" ng-disabled="!authorized || !(mainMotorLevel > 0)" ng-click="stopMainMotor()">
+                <i class="fas fa-power-off" aria-hidden="true"></i> 
+              </button>
+              <button type="button" class="btn btn-dark" ng-disabled="!authorized || !(mainMotorLevel > 0)" ng-click="decrementMainMotor()">
+                <i class="fas fa-minus" aria-hidden="true"></i> 
+              </button>
+              <button type="button" class="btn btn-primary" ng-disabled="!authorized || mainMotorLevel >= 100" ng-click="incrementMainMotor()">
+                <i class="fas fa-plus" aria-hidden="true"></i> 
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-{{ buttonsAssignment === BUTTONS_ASSIGNMENT_VIBE_MOTOR || buttonsAssignment === BUTTONS_ASSIGNMENT_BOTH_MOTORS ? 'dark' : 'secondary' }} motor-card text-center">
+          <div class="card-body">
+            <div>
+              <h5 class="card-title">Vibrator {{ vibeMotorLevel || '--' }} %</h5>
+            </div>
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped" role="progressbar" style="width: {{ vibeMotorLevel }}%" aria-valuenow="{{ vibeMotorLevel }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+          <div class="card-footer" ng-if="!cruiseControlStatus">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-danger" ng-disabled="!authorized || !(vibeMotorLevel > 0)" ng-click="stopVibeMotor()">
+                <i class="fas fa-power-off" aria-hidden="true"></i> 
+              </button>
+              <button type="button" class="btn btn-dark" ng-disabled="!authorized || !(vibeMotorLevel > 0)" ng-click="decrementVibeMotor()">
+                <i class="fas fa-minus" aria-hidden="true"></i> 
+              </button>
+              <button type="button" class="btn btn-primary" ng-disabled="!authorized || vibeMotorLevel >= 100" ng-click="incrementVibeMotor()">
+                <i class="fas fa-plus" aria-hidden="true"></i> 
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-3" ng-if="isConnected() && batteryLevel">
+        <div class="col-12">
+          <div>
+            <span>
+              <i class="fa fa-battery-{{ batteryLevel >= 85 ? 'full' :
+                batteryLevel >= 50 ? 'three-quarters' : 
+                batteryLevel >= 30 ? 'half' : 
+                batteryLevel >= 15 ? 'quarter' : 
+                'empty' }}" aria-hidden="true"></i> 
+            </span>
+            <span>{{ batteryLevel }} %</span>
+          </div>
+          <div class="progress">
+            <div class="progress-bar bg-{{ batteryLevel >= 60 ? 'success' :
+              batteryLevel >= 30 ? 'warning' : 'danger' }}" 
+                role="progressbar" 
+                style="width: {{ batteryLevel }}%; height: 20px;" 
+                aria-valuenow="{{ batteryLevel }}" 
+                aria-valuemin="0" 
+                aria-valuemax="{{ batteryLevel }}">
+              </div>
+          </div>
+        </div>
+      </div>
+        
+      <div class="row mt-3" ng-if="isConnected() && (temperature || pressure || depth) && !batterySaving">
+        <div class="col-6">
+          <div class="text-left" ng-if="temperature">
+            <span>
+              <i class="fas fa-temperature-high" aria-hidden="true"></i> 
+            </span>
+            <span>{{ temperature || '--' }} &deg;C</span>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="text-right" ng-if="pressure">
+            <span>
+              <i class="fas fa-tachometer-alt" aria-hidden="true"></i> 
+            </span>
+            <span>{{ pressure || '--' }} mBar</span>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="text-left" ng-if="depth !== null">
+            <span>
+              <i class="fas fa-ring" aria-hidden="true"></i> 
+              {{ depth || '--' }} %
+            </span>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="text-right" ng-if="acceleration">
+              <i class="fas fa-compass" aria-hidden="true"></i>
+              X {{ acceleration[0] || '--' }},
+              Y {{ acceleration[1] || '--' }},
+              Z {{ acceleration[2] || '--' }}
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <div class="overlay" ng-if="pending" ng-cloak>
+      <div class="overlay-text">
+        <i class="fa fa-circle-o-notch fa-spin fa-2x" aria-hidden="true"></i>
+      </div>
+    </div>
+    
+    <div class="overlay" id="loading-overlay">
+      <div class="overlay-text">
+        <i class="fa fa-circle-o-notch fa-spin fa-2x" aria-hidden="true"></i>
+      </div>
+    </div>
+    
+    <script src="shim/encoding-indexes.js"></script>
+    <script src="shim/encoding.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+    <script src="https://kit.fontawesome.com/b76c1c746a.js" crossorigin="anonymous"></script>
+
+    <script src="lib/client.js"></script>
+    <script src="example-mobile.js"></script>
+  </body>
+</html>
