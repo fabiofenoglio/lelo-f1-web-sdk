@@ -176,12 +176,12 @@ app.controller('demoController', function($scope) {
     $scope.decrementBothMotors = function() {
         let toSetMain = ($scope.mainMotorLevel || 0) - SCALE_SPEED_STEP;
         if (toSetMain < SCALE_SPEED_MIN) {
-            toSetMain = SCALE_SPEED_MIN;
+            toSetMain = 0;
         }
 
         let toSetVibe = ($scope.vibeMotorLevel || 0) - SCALE_SPEED_STEP;
         if (toSetVibe < SCALE_SPEED_MIN) {
-            toSetVibe = SCALE_SPEED_MIN;
+            toSetVibe = 0;
         }
         client.setMotorsSpeed(toDeviceSpeed(toSetMain), toDeviceSpeed(toSetVibe)).then(function() {
             $scope.mainMotorLevel = toSetMain;
