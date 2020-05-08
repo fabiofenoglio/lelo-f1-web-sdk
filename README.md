@@ -5,6 +5,9 @@ The original and official repository with sample code for Android and iOS as wel
 This is an unofficial vanilla JavaScript  client based on the new Web Bluetooth API.
 
 
+### PLEASE NOTE: this project evolved into the newer and more powerful HUB prototype that you can check out  on [github.com/fabiofenoglio/lelo-f1-hub](https://github.com/fabiofenoglio/lelo-f1-hub)
+
+
 ### WARNING: Work in progress! Currently developing on Chrome.
 
 See the [Simple working demo](https://fabiofenoglio.github.io/lelo-f1-web-sdk/example.html)
