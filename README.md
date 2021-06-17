@@ -1,5 +1,7 @@
 # LELO F1 SDK Web Bluetooth Client
 
+### WARNING: THIS PROJECT IS STILL NOT COMPATIBLE WITH THE NEWER VERSION OF THE DEVICE (F1S V2) AS BLE SPECIFICATIONS HAVE NOT YET BEEN RELEASED FROM THE PRODUCER.
+
 The original and official repository with sample code for Android and iOS as well as BLE specifications can be found at [https://github.com/LELO-Devs/F1s-SDK](https://github.com/LELO-Devs/F1s-SDK).
 
 This is an unofficial vanilla JavaScript  client based on the new Web Bluetooth API.
