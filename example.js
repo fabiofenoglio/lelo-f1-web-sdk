@@ -20,8 +20,6 @@ function runDemo() {
 
     const client = leloF1SdkClientProvider.getClient();
     
-    let buttonsChangedHandler;
-
     log('looking for device ...');
     client.searchAndConnect().then(function() {
 
@@ -72,8 +70,8 @@ function runDemo() {
             log('(notification) insertion depth: ' + sensorData + ' %');
         });
 
-        client.notifyKeyState(function(sensorData) {
-            log('(notification) key state: ' + sensorData);
+        client.notifyAuthorization(function(sensorData) {
+            log('(notification) authorization state: ' + sensorData);
         });
 
         client.notifyRotationSpeed(function(sensorData) {

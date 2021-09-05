@@ -377,7 +377,7 @@ app.controller('demoController', function($scope) {
     function subscribeNotifications() {
         $scope.depth = 0;
 
-        client.notifyKeyState(keyStateChanged).then(toArray(notifications));
+        client.notifyAuthorization(keyStateChanged).then(toArray(notifications));
         client.notifyButtons(buttonsChanged).then(toArray(notifications));
 
         client.notifyAccelerometer(toScope('acceleration')).then(toArray(sensorNotifications));

@@ -296,26 +296,10 @@ app.controller('demoController', function($scope) {
 
     function toLocalSpeed(deviceSpeed) {
         return deviceSpeed;
-        /*
-        // scale device 30-100 to local 0-100
-        if (deviceSpeed < SCALE_SPEED_MIN) {
-            return 0;
-        } else {
-            return (deviceSpeed - SCALE_SPEED_MIN) * (100 / (100 - SCALE_SPEED_MIN));
-        }
-        */
     }
 
     function toDeviceSpeed(localSpeed) {
         return localSpeed;
-        /*
-        // scale local 0-100 to device 30-100
-        if (localSpeed < 1) {
-            return 0;
-        } else {
-            return SCALE_SPEED_MIN + ( (100 - SCALE_SPEED_MIN) * localSpeed / 100.0 );
-        }
-        */
     }
 
     function checkMotorsLevel() {
@@ -377,7 +361,7 @@ app.controller('demoController', function($scope) {
     function subscribeNotifications() {
         $scope.depth = 0;
 
-        client.notifyKeyState(keyStateChanged).then(toArray(notifications));
+        client.notifyAuthorization(keyStateChanged).then(toArray(notifications));
         client.notifyButtons(buttonsChanged).then(toArray(notifications));
 
         client.notifyAccelerometer(toScope('acceleration')).then(toArray(sensorNotifications));
