@@ -60,14 +60,14 @@ All method return promises and can be chained.
 - getInsertionDepth -> returns integer from 0 to 8
 - getInsertionDepthPercentage -> returns integer from 0 to 100
 - getRotationSpeed -> returns integer in rpm
-- getWakeUp -> returns boolean
-- enableWakeUp
-- disableWakeUp
-- getCruiseControl -> returns boolean
-- enableCruiseControl
-- disableCruiseControl
-- getVibrationSettings -> returns array of integers [value0, value1, ... value7]
-- setVibrationSettings (value0, value1, ... value7)
+- getWakeUp -> returns boolean (F1s first version only)
+- enableWakeUp (F1s first version only)
+- disableWakeUp (F1s first version only)
+- getCruiseControl -> returns boolean (F1s first version only)
+- enableCruiseControl (F1s first version only)
+- disableCruiseControl (F1s first version only)
+- getVibrationSettings -> returns array of integers [value0, value1, ... value7] (F1s first version only)
+- setVibrationSettings (value0, value1, ... value7) (F1s first version only)
 - notifyAccelerometer ( callback(value) ) -> returns handler
 - notifyButtons ( callback(value) ) -> returns handler
 - notifyInsertionDepth ( callback(value) ) -> returns handler

@@ -92,16 +92,6 @@ function runDemo() {
             client.getUseCount().then(function(value) {
                 log('usage counter: ' + value);
             }),
-            client.getWakeUp().then(function(value) {
-                log('quick wake-up is: ' + (value ? 'ENABLED' : 'disabled'));
-            }),
-            client.getCruiseControl().then(function(value) {
-                log('cruise control is: ' + (value ? 'ENABLED' : 'disabled'));
-            }),
-            client.getVibrationSettings().then(function(values) {
-                log('cruise control vibration settings: ' + values.join(', '));
-            }),
-            
             client.shutdownMotors(),
             wait(4000)
         ]);
