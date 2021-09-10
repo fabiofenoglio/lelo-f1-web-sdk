@@ -28,6 +28,8 @@ function runDemo() {
         return Promise.all([
             client.getBatteryLevel().then(function(batteryLevel) {
                 log('battery is at ' + batteryLevel + ' %');
+            }).catch(err => {
+                log('ERROR reading battery level: ' + err);
             }),
             client.getManufacturerName().then(function(value) {
                 log('manufacturer name: ' + value);
