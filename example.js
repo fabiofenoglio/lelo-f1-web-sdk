@@ -52,9 +52,9 @@ function runDemo() {
         if (client.isV2()) {
             // is a F1sV2 device
             log('you are connecting a F1sV2 device. Warning: support for this version is experimental!');
-            client.notifySecurityAccess(function(raw) {
-                log('reading security access from device: ' + raw);
-            });
+            //client.notifySecurityAccess(function(raw) {
+              //  log('reading security access from device: ' + raw);
+            //});
         } else {
             log('you are connecting a F1s device (original version).');
         }
